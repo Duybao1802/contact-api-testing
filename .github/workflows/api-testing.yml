@@ -34,8 +34,8 @@ jobs:
       
     - name: Run Contact API Tests
       run: |
-        newman run "postman-collections/Contact-API-Tests-Simple.postman_collection.json" \
-          -e "postman-environments/Contact-API-Environment-Clean.postman_environment.json" \
+        newman run "./postman-collections/Contact-API-Tests-Simple.postman_collection.json" \
+          -e "./postman-environments/Contact-API-Environment-Clean.postman_environment.json" \
           --reporters cli,htmlextra \
           --reporter-htmlextra-export test-results/report.html \
           --reporter-htmlextra-title "Contact API Test Results" \
