@@ -1,0 +1,537 @@
+{
+  "info": {
+    "name": "Contact API Tests",
+    "description": "Comprehensive test collection for Contact API endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8091",
+      "type": "string"
+    },
+    {
+      "key": "admin_token",
+      "value": "{{admin_token}}",
+      "type": "string"
+    },
+    {
+      "key": "user_token",
+      "value": "{{user_token}}",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Send New Contact Message",
+      "item": [
+        {
+          "name": "Valid Contact Message",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john@doe.example\",\n  \"subject\": \"Website Feedback\",\n  \"message\": \"The website is working great! Thank you for the excellent service.\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/messages",
+              "host": "localhost",
+              "port": "8091",
+              "path": ["api", "messages"]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response contains access_token\", function () {",
+                  "    pm.response.to.have.jsonBody('access_token');",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is less than 2000ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Invalid Contact Message - Empty Name",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"\",\n  \"email\": \"john@doe.example\",\n  \"subject\": \"Test Subject\",\n  \"message\": \"Test message\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/messages",
+              "host": "localhost",
+              "port": "8091",
+              "path": ["api", "messages"]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 400 or 422\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([400, 422]);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Invalid Contact Message - Invalid Email",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"invalid-email\",\n  \"subject\": \"Test Subject\",\n  \"message\": \"Test message\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/messages",
+              "host": "localhost",
+              "port": "8091",
+              "path": ["api", "messages"]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 400 or 422\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([400, 422]);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "2. Retrieve Messages",
+      "item": [
+        {
+          "name": "Get Messages - Admin User",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/messages",
+              "host": "localhost",
+              "port": "8091",
+              "path": ["api", "messages"]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response contains pagination data\", function () {",
+                  "    pm.response.to.have.jsonBody('current_page');",
+                  "    pm.response.to.have.jsonBody('data');",
+                  "    pm.response.to.have.jsonBody('total');",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is less than 2000ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Messages - Unauthorized",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/messages",
+              "host": "localhost",
+              "port": "8091",
+              "path": ["api", "messages"]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 401\", function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});",
+                  "",
+                  "pm.test(\"Response contains unauthorized message\", function () {",
+                  "    pm.response.to.have.jsonBody('message');",
+                  "    pm.expect(pm.response.json().message).to.eql('Unauthorized');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "3. Get Specific Message",
+      "item": [
+        {
+          "name": "Get Message by ID - Valid ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/messages/1",
+              "host": "localhost",
+              "port": "8091",
+              "path": ["api", "messages", "1"]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response contains message details\", function () {",
+                  "    pm.response.to.have.jsonBody('id');",
+                  "    pm.response.to.have.jsonBody('name');",
+                  "    pm.response.to.have.jsonBody('email');",
+                  "    pm.response.to.have.jsonBody('subject');",
+                  "    pm.response.to.have.jsonBody('message');",
+                  "    pm.response.to.have.jsonBody('status');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Message by ID - Invalid ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/messages/999999",
+              "host": "localhost",
+              "port": "8091",
+              "path": ["api", "messages", "999999"]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 404\", function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "4. Update Message Status",
+      "item": [
+        {
+          "name": "Update Status to IN_PROGRESS",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"IN_PROGRESS\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/messages/1/status",
+              "host": "localhost",
+              "port": "8091",
+              "path": ["api", "messages", "1", "status"]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response contains success indicator\", function () {",
+                  "    pm.response.to.have.jsonBody('success');",
+                  "    pm.expect(pm.response.json().success).to.be.true;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Status to RESOLVED",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"RESOLVED\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/messages/1/status",
+              "host": "localhost",
+              "port": "8091",
+              "path": ["api", "messages", "1", "status"]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Status - Invalid Status",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"INVALID_STATUS\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/messages/1/status",
+              "host": "localhost",
+              "port": "8091",
+              "path": ["api", "messages", "1", "status"]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 400 or 422\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([400, 422]);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "5. Reply to Message",
+      "item": [
+        {
+          "name": "Reply to Message - Valid Reply",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Support Team\",\n  \"email\": \"support@company.com\",\n  \"subject\": \"Re: Website Feedback\",\n  \"message\": \"Thank you for your feedback. We're glad you're enjoying our service!\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/messages/1/reply",
+              "host": "localhost",
+              "port": "8091",
+              "path": ["api", "messages", "1", "reply"]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response contains reply details\", function () {",
+                  "    pm.response.to.have.jsonBody('message');",
+                  "    pm.response.to.have.jsonBody('id');",
+                  "    pm.response.to.have.jsonBody('created_at');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "6. Attach File to Message",
+      "item": [
+        {
+          "name": "Attach File - Valid File",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/messages/1/attach-file",
+              "host": "localhost",
+              "port": "8091",
+              "path": ["api", "messages", "1", "attach-file"]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response contains success indicator\", function () {",
+                  "    pm.response.to.have.jsonBody('success');",
+                  "    pm.expect(pm.response.json().success).to.be.true;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

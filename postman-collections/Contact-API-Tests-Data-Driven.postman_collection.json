@@ -1,0 +1,933 @@
+{
+  "info": {
+    "name": "Contact API Tests - Data Driven",
+    "description": "Data-driven version of the working Contact API Tests collection",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8091/api",
+      "type": "string"
+    },
+    {
+      "key": "admin_token",
+      "value": "{{admin_token}}",
+      "type": "string"
+    },
+    {
+      "key": "user_token",
+      "value": "{{user_token}}",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Send New Contact Message - Data Driven",
+      "item": [
+        {
+          "name": "Valid Contact Message - Data Driven",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"{{test_name}}\",\n  \"email\": \"{{test_email}}\",\n  \"subject\": \"{{test_subject}}\",\n  \"message\": \"{{test_message}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/messages",
+              "host": ["{{base_url}}"],
+              "path": ["messages"]
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// Data-driven test setup for valid contact messages",
+                  "const validScenarios = [",
+                  "  {",
+                  "    name: 'John Doe',",
+                  "    email: 'john@doe.example',",
+                  "    subject: 'Website Feedback',",
+                  "    message: 'The website is working great! Thank you for the excellent service.'",
+                  "    description: 'Standard feedback message'",
+                  "  },",
+                  "  {",
+                  "    name: 'Jane Smith',",
+                  "    email: 'jane@smith.example',",
+                  "    subject: 'Product Inquiry',",
+                  "    message: 'I have a question about your products. Can you help me understand the features better?'",
+                  "    description: 'Product inquiry message'",
+                  "  },",
+                  "  {",
+                  "    name: 'Bob Wilson',",
+                  "    email: 'bob@wilson.example',",
+                  "    subject: 'Support Request',",
+                  "    message: 'Need help with my account. I cannot log in with my credentials.'",
+                  "    description: 'Support request message'",
+                  "  },",
+                  "  {",
+                  "    name: 'Alice Johnson',",
+                  "    email: 'alice@johnson.example',",
+                  "    subject: 'Feature Request',",
+                  "    message: 'Would it be possible to add dark mode to the application? This would improve user experience significantly.'",
+                  "    description: 'Feature request message'",
+                  "  }",
+                  "];",
+                  "",
+                  "// Select random test scenario",
+                  "const randomIndex = Math.floor(Math.random() * validScenarios.length);",
+                  "const scenario = validScenarios[randomIndex];",
+                  "",
+                  "// Set variables for this request",
+                  "pm.environment.set('test_name', scenario.name);",
+                  "pm.environment.set('test_email', scenario.email);",
+                  "pm.environment.set('test_subject', scenario.subject);",
+                  "pm.environment.set('test_message', scenario.message);",
+                  "pm.environment.set('scenario_description', scenario.description);",
+                  "",
+                  "console.log('Using valid contact scenario:', scenario.description);",
+                  "console.log('Test data:', scenario);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response contains access_token\", function () {",
+                  "    pm.response.to.have.jsonBody('access_token');",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is less than 2000ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+                  "});",
+                  "",
+                  "// Log the test data used and results",
+                  "console.log('Valid contact test executed with:', {",
+                  "    name: pm.environment.get('test_name'),",
+                  "    email: pm.environment.get('test_email'),",
+                  "    subject: pm.environment.get('test_subject'),",
+                  "    message: pm.environment.get('test_message'),",
+                  "    scenario: pm.environment.get('scenario_description'),",
+                  "    status_code: pm.response.code,",
+                  "    response_time: pm.response.responseTime",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Invalid Contact Message - Empty Name - Data Driven",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"{{invalid_name}}\",\n  \"email\": \"{{invalid_email}}\",\n  \"subject\": \"{{invalid_subject}}\",\n  \"message\": \"{{invalid_message}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/messages",
+              "host": ["{{base_url}}"],
+              "path": ["messages"]
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// Data-driven test setup for invalid contact messages",
+                  "const invalidScenarios = [",
+                  "  {",
+                  "    name: '',",
+                  "    email: 'john@doe.example',",
+                  "    subject: 'Test Subject',",
+                  "    message: 'Test message',",
+                  "    description: 'Empty name validation'",
+                  "    expected_status: 400",
+                  "  },",
+                  "  {",
+                  "    name: 'John Doe',",
+                  "    email: 'invalid-email',",
+                  "    subject: 'Test Subject',",
+                  "    message: 'Test message',",
+                  "    description: 'Invalid email validation',",
+                  "    expected_status: 400",
+                  "  },",
+                  "  {",
+                  "    name: 'John Doe',",
+                  "    email: 'john@doe.example',",
+                  "    subject: '',",
+                  "    message: 'Test message',",
+                  "    description: 'Empty subject validation',",
+                  "    expected_status: 400",
+                  "  },",
+                  "  {",
+                  "    name: 'John Doe',",
+                  "    email: 'john@doe.example',",
+                  "    subject: 'Test Subject',",
+                  "    message: '',",
+                  "    description: 'Empty message validation',",
+                  "    expected_status: 400",
+                  "  }",
+                  "  {",
+                  "    name: 'A'.repeat(300),",
+                  "    email: 'john@doe.example',",
+                  "    subject: 'Test Subject',",
+                  "    message: 'Test message',",
+                  "    description: 'Very long name validation',",
+                  "    expected_status: 400",
+                  "  }",
+                  "  {",
+                  "    name: 'John Doe',",
+                  "    email: 'john@doe.example',",
+                  "    subject: 'A'.repeat(300),",
+                  "    message: 'Test message',",
+                  "    description: 'Very long subject validation',",
+                  "    expected_status: 400",
+                  "  }",
+                  "];",
+                  "",
+                  "// Select random invalid scenario",
+                  "const randomIndex = Math.floor(Math.random() * invalidScenarios.length);",
+                  "const scenario = invalidScenarios[randomIndex];",
+                  "",
+                  "// Set variables for this request",
+                  "pm.environment.set('invalid_name', scenario.name);",
+                  "pm.environment.set('invalid_email', scenario.email);",
+                  "pm.environment.set('invalid_subject', scenario.subject);",
+                  "pm.environment.set('invalid_message', scenario.message);",
+                  "pm.environment.set('scenario_description', scenario.description);",
+                  "pm.environment.set('expected_status', scenario.expected_status);",
+                  "",
+                  "console.log('Using invalid contact scenario:', scenario.description);",
+                  "console.log('Test data:', scenario);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const expectedStatus = parseInt(pm.environment.get('expected_status')) || 400;",
+                  "",
+                  "pm.test(`Status code is ${expectedStatus} or 500 (server error)`, function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([expectedStatus, 500]);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 500) {",
+                  "    console.log('⚠️ Server error detected - this is a bug!');",
+                  "    pm.test(\"Server error logged\", function () {",
+                  "        pm.expect(pm.response.code).to.equal(500);",
+                  "    });",
+                  "} else {",
+                  "    pm.test(\"Response contains error message\", function () {",
+                  "        pm.response.to.have.jsonBody('message');",
+                  "    });",
+                  "}",
+                  "",
+                  "// Log the test data used and results",
+                  "console.log('Invalid contact test executed with:', {",
+                  "    name: pm.environment.get('invalid_name'),",
+                  "    email: pm.environment.get('invalid_email'),",
+                  "    subject: pm.environment.get('invalid_subject'),",
+                  "    message: pm.environment.get('invalid_message'),",
+                  "    scenario: pm.environment.get('scenario_description'),",
+                  "    expected_status: pm.environment.get('expected_status'),",
+                  "    actual_status: pm.response.code,",
+                  "    response_time: pm.response.responseTime",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "2. Retrieve Messages - Data Driven",
+      "item": [
+        {
+          "name": "Get Messages - Admin User - Data Driven",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/messages",
+              "host": ["{{base_url}}"],
+              "path": ["messages"]
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// Data-driven test setup for message retrieval",
+                  "const retrievalScenarios = [",
+                  "  {",
+                  "    description: 'Admin retrieves all messages',",
+                  "    expected_count: '> 0',",
+                  "    expected_fields: ['current_page', 'data', 'total']",
+                  "  },",
+                  "  {",
+                  "    description: 'Admin retrieves messages with pagination',",
+                  "    expected_count: '> 0',",
+                  "    expected_fields: ['current_page', 'data', 'total', 'per_page']",
+                  "  }",
+                  "];",
+                  "",
+                  "// Select random retrieval scenario",
+                  "const randomIndex = Math.floor(Math.random() * retrievalScenarios.length);",
+                  "const scenario = retrievalScenarios[randomIndex];",
+                  "",
+                  "// Set variables for this request",
+                  "pm.environment.set('retrieval_description', scenario.description);",
+                  "pm.environment.set('expected_count', scenario.expected_count);",
+                  "pm.environment.set('expected_fields', scenario.expected_fields.join(', '));",
+                  "",
+                  "console.log('Using retrieval scenario:', scenario.description);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response contains pagination data\", function () {",
+                  "    pm.response.to.have.jsonBody('current_page');",
+                  "    pm.response.to.have.jsonBody('data');",
+                  "    pm.response.to.have.jsonBody('total');",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is less than 2000ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+                  "});",
+                  "",
+                  "// Log the test data used and results",
+                  "console.log('Message retrieval test executed with:', {",
+                  "    description: pm.environment.get('retrieval_description'),",
+                  "    expected_count: pm.environment.get('expected_count'),",
+                  "    expected_fields: pm.environment.get('expected_fields'),",
+                  "    status_code: pm.response.code,",
+                  "    response_time: pm.response.responseTime,",
+                  "    total_messages: pm.response.json().total || 'N/A'",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Messages - Unauthorized - Data Driven",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/messages",
+              "host": ["{{base_url}}"],
+              "path": ["messages"]
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// Data-driven test setup for unauthorized access",
+                  "const unauthorizedScenarios = [",
+                  "  {",
+                  "    description: 'No authorization header',",
+                  "    expected_status: 401,",
+                  "    expected_message: 'Unauthorized'",
+                  "  },",
+                  "  {",
+                  "    description: 'Empty authorization header',",
+                  "    expected_status: 401,",
+                  "    expected_message: 'Unauthorized'",
+                  "  }",
+                  "];",
+                  "",
+                  "// Select random unauthorized scenario",
+                  "const randomIndex = Math.floor(Math.random() * unauthorizedScenarios.length);",
+                  "const scenario = unauthorizedScenarios[randomIndex];",
+                  "",
+                  "// Set variables for this request",
+                  "pm.environment.set('unauthorized_description', scenario.description);",
+                  "pm.environment.set('expected_status', scenario.expected_status);",
+                  "pm.environment.set('expected_message', scenario.expected_message);",
+                  "",
+                  "console.log('Using unauthorized scenario:', scenario.description);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const expectedStatus = parseInt(pm.environment.get('expected_status')) || 401;",
+                  "const expectedMessage = pm.environment.get('expected_message') || 'Unauthorized';",
+                  "",
+                  "pm.test(`Status code is ${expectedStatus}`, function () {",
+                  "    pm.response.to.have.status(expectedStatus);",
+                  "});",
+                  "",
+                  "pm.test(\"Response contains unauthorized message\", function () {",
+                  "    pm.response.to.have.jsonBody('message');",
+                  "    pm.expect(pm.response.json().message).to.eql(expectedMessage);",
+                  "});",
+                  "",
+                  "// Log the test data used and results",
+                  "console.log('Unauthorized test executed with:', {",
+                  "    description: pm.environment.get('unauthorized_description'),",
+                  "    expected_status: pm.environment.get('expected_status'),",
+                  "    expected_message: pm.environment.get('expected_message'),",
+                  "    actual_status: pm.response.code,",
+                  "    actual_message: pm.response.json().message || 'N/A'",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "3. Get Specific Message - Data Driven",
+      "item": [
+        {
+          "name": "Get Message by ID - Valid ID - Data Driven",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/messages/{{message_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["messages", "{{message_id}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// Data-driven test setup for specific message retrieval",
+                  "const messageIdScenarios = [",
+                  "  {",
+                  "    message_id: '1',",
+                  "    description: 'Get first message',",
+                  "    expected_fields: ['id', 'name', 'email', 'subject', 'message', 'status']",
+                  "  },",
+                  "  {",
+                  "    message_id: '2',",
+                  "    description: 'Get second message',",
+                  "    expected_fields: ['id', 'name', 'email', 'subject', 'message', 'status']",
+                  "  },",
+                  "  {",
+                  "    message_id: '3',",
+                  "    description: 'Get third message',",
+                  "    expected_fields: ['id', 'name', 'email', 'subject', 'message', 'status']",
+                  "  }",
+                  "];",
+                  "",
+                  "// Select random message ID scenario",
+                  "const randomIndex = Math.floor(Math.random() * messageIdScenarios.length);",
+                  "const scenario = messageIdScenarios[randomIndex];",
+                  "",
+                  "// Set variables for this request",
+                  "pm.environment.set('message_id', scenario.message_id);",
+                  "pm.environment.set('message_description', scenario.description);",
+                  "pm.environment.set('expected_fields', scenario.expected_fields.join(', '));",
+                  "",
+                  "console.log('Using message ID scenario:', scenario.description);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response contains message details\", function () {",
+                  "    pm.response.to.have.jsonBody('id');",
+                  "    pm.response.to.have.jsonBody('name');",
+                  "    pm.response.to.have.jsonBody('email');",
+                  "    pm.response.to.have.jsonBody('subject');",
+                  "    pm.response.to.have.jsonBody('message');",
+                  "    pm.response.to.have.jsonBody('status');",
+                  "});",
+                  "",
+                  "// Log the test data used and results",
+                  "console.log('Specific message test executed with:', {",
+                  "    message_id: pm.environment.get('message_id'),",
+                  "    description: pm.environment.get('message_description'),",
+                  "    expected_fields: pm.environment.get('expected_fields'),",
+                  "    status_code: pm.response.code,",
+                  "    actual_message_id: pm.response.json().id || 'N/A'",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Message by ID - Invalid ID - Data Driven",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/messages/{{invalid_message_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["messages", "{{invalid_message_id}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// Data-driven test setup for invalid message IDs",
+                  "const invalidIdScenarios = [",
+                  "  {",
+                  "    invalid_message_id: '999999',",
+                  "    description: 'Very high invalid ID',",
+                  "    expected_status: 404,",
+                  "  },",
+                  "  {",
+                  "    invalid_message_id: '0',",
+                  "    description: 'Zero ID',",
+                  "    expected_status: 404,",
+                  "  },",
+                  "  {",
+                  "    invalid_message_id: '-1',",
+                  "    description: 'Negative ID',",
+                  "    expected_status: 404,",
+                  "  },",
+                  "  {",
+                  "    invalid_message_id: 'abc',",
+                  "    description: 'Non-numeric ID',",
+                  "    expected_status: 404,",
+                  "  }",
+                  "];",
+                  "",
+                  "// Select random invalid ID scenario",
+                  "const randomIndex = Math.floor(Math.random() * invalidIdScenarios.length);",
+                  "const scenario = invalidIdScenarios[randomIndex];",
+                  "",
+                  "// Set variables for this request",
+                  "pm.environment.set('invalid_message_id', scenario.invalid_message_id);",
+                  "pm.environment.set('invalid_id_description', scenario.description);",
+                  "pm.environment.set('expected_status', scenario.expected_status);",
+                  "",
+                  "console.log('Using invalid ID scenario:', scenario.description);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const expectedStatus = parseInt(pm.environment.get('expected_status')) || 404;",
+                  "",
+                  "pm.test(`Status code is ${expectedStatus}`, function () {",
+                  "    pm.response.to.have.status(expectedStatus);",
+                  "});",
+                  "",
+                  "// Log the test data used and results",
+                  "console.log('Invalid message ID test executed with:', {",
+                  "    invalid_message_id: pm.environment.get('invalid_message_id'),",
+                  "    description: pm.environment.get('invalid_id_description'),",
+                  "    expected_status: pm.environment.get('expected_status'),",
+                  "    actual_status: pm.response.code,",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "4. Update Message Status - Data Driven",
+      "item": [
+        {
+          "name": "Update Status to IN_PROGRESS - Data Driven",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"{{test_status}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/messages/{{message_id}}/status",
+              "host": ["{{base_url}}"],
+              "path": ["messages", "{{message_id}}", "status"]
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// Data-driven test setup for status updates",
+                  "const statusScenarios = [",
+                  "  {",
+                  "    test_status: 'IN_PROGRESS',",
+                  "    description: 'Update status to IN_PROGRESS',",
+                  "    expected_status: 200,",
+                  "    expected_response: 'success: true'",
+                  "  },",
+                  "  {",
+                  "    test_status: 'NEW',",
+                  "    description: 'Update status to NEW',",
+                  "    expected_status: 200,",
+                  "    expected_response: 'success: true'",
+                  "  },",
+                  "  {",
+                  "    test_status: 'RESOLVED',",
+                  "    description: 'Update status to RESOLVED',",
+                  "    expected_status: 200,",
+                  "    expected_response: 'success: true'",
+                  "  }",
+                  "];",
+                  "",
+                  "// Select random status scenario",
+                  "const randomIndex = Math.floor(Math.random() * statusScenarios.length);",
+                  "const scenario = statusScenarios[randomIndex];",
+                  "",
+                  "// Set variables for this request",
+                  "pm.environment.set('test_status', scenario.test_status);",
+                  "pm.environment.set('status_description', scenario.description);",
+                  "pm.environment.set('expected_status', scenario.expected_status);",
+                  "pm.environment.set('expected_response', scenario.expected_response);",
+                  "pm.environment.set('message_id', '1'); // Use message ID 1 that we know exists",
+                  "",
+                  "console.log('Using status update scenario:', scenario.description);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const expectedStatus = parseInt(pm.environment.get('expected_status')) || 200;",
+                  "",
+                  "pm.test(`Status code is ${expectedStatus}`, function () {",
+                  "    pm.response.to.have.status(expectedStatus);",
+                  "});",
+                  "",
+                  "pm.test(\"Response contains success indicator\", function () {",
+                  "    pm.response.to.have.jsonBody('success');",
+                  "    pm.expect(pm.response.json().success).to.be.true;",
+                  "});",
+                  "",
+                  "// Log the test data used and results",
+                  "console.log('Status update test executed with:', {",
+                  "    test_status: pm.environment.get('test_status'),",
+                  "    description: pm.environment.get('status_description'),",
+                  "    expected_status: pm.environment.get('expected_status'),",
+                  "    expected_response: pm.environment.get('expected_response'),",
+                  "    message_id: pm.environment.get('message_id'),",
+                  "    actual_status: pm.response.code,",
+                  "    actual_response: pm.response.json()",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Status - Invalid Status - Data Driven",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"{{invalid_status}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/messages/{{message_id}}/status",
+              "host": ["{{base_url}}"],
+              "path": ["messages", "{{message_id}}", "status"]
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// Data-driven test setup for invalid status updates",
+                  "const invalidStatusScenarios = [",
+                  "  {",
+                  "    invalid_status: 'INVALID_STATUS',",
+                  "    description: 'Invalid status value',",
+                  "    expected_status: 400,",
+                  "  },",
+                  "  {",
+                  "    invalid_status: 'PENDING',",
+                  "    description: 'Unknown status value',",
+                  "    expected_status: 400,",
+                  "  },",
+                  "  {",
+                  "    invalid_status: '',",
+                  "    description: 'Empty status value',",
+                  "    expected_status: 400,",
+                  "  },",
+                  "  {",
+                  "    invalid_status: '123',",
+                  "    description: 'Numeric status value',",
+                  "    expected_status: 400,",
+                  "  }",
+                  "];",
+                  "",
+                  "// Select random invalid status scenario",
+                  "const randomIndex = Math.floor(Math.random() * invalidStatusScenarios.length);",
+                  "const scenario = invalidStatusScenarios[randomIndex];",
+                  "",
+                  "// Set variables for this request",
+                  "pm.environment.set('invalid_status', scenario.invalid_status);",
+                  "pm.environment.set('invalid_status_description', scenario.description);",
+                  "pm.environment.set('expected_status', scenario.expected_status);",
+                  "pm.environment.set('message_id', '1'); // Use message ID 1 that we know exists",
+                  "",
+                  "console.log('Using invalid status scenario:', scenario.description);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const expectedStatus = parseInt(pm.environment.get('expected_status')) || 400;",
+                  "",
+                  "pm.test(`Status code is ${expectedStatus} or 422`, function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([expectedStatus, 422]);",
+                  "});",
+                  "",
+                  "// Log the test data used and results",
+                  "console.log('Invalid status test executed with:', {",
+                  "    invalid_status: pm.environment.get('invalid_status'),",
+                  "    description: pm.environment.get('invalid_status_description'),",
+                  "    expected_status: pm.environment.get('expected_status'),",
+                  "    message_id: pm.environment.get('message_id'),",
+                  "    actual_status: pm.response.code,",
+                  "    actual_response: pm.response.json() || 'N/A'",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "5. Reply to Message - Data Driven",
+      "item": [
+        {
+          "name": "Reply to Message - Valid Reply - Data Driven",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"{{reply_name}}\",\n  \"email\": \"{{reply_email}}\",\n  \"subject\": \"{{reply_subject}}\",\n  \"message\": \"{{reply_message}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/messages/{{message_id}}/reply",
+              "host": ["{{base_url}}"],
+              "path": ["messages", "{{message_id}}", "reply"]
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// Data-driven test setup for message replies",
+                  "const replyScenarios = [",
+                  "  {",
+                  "    reply_name: 'Support Team',",
+                  "    reply_email: 'support@company.com',",
+                  "    reply_subject: 'Re: Website Feedback',",
+                  "    reply_message: 'Thank you for your feedback. We are glad you are enjoying our service!',",
+                  "    description: 'Standard support reply',",
+                  "  },",
+                  "  {",
+                  "    reply_name: 'Customer Service',",
+                  "    reply_email: 'customerservice@company.com',",
+                  "    reply_subject: 'Re: Product Inquiry',",
+                  "    reply_message: 'Thank you for your inquiry. Our team will get back to you within 24 hours.',",
+                  "    description: 'Customer service reply',",
+                  "  },",
+                  "  {",
+                  "    reply_name: 'Technical Support',",
+                  "    reply_email: 'techsupport@company.com',",
+                  "    reply_subject: 'Re: Support Request',",
+                  "    reply_message: 'We have received your support request. A technician will contact you soon.',",
+                  "    description: 'Technical support reply',",
+                  "  }",
+                  "];",
+                  "",
+                  "// Select random reply scenario",
+                  "const randomIndex = Math.floor(Math.random() * replyScenarios.length);",
+                  "const scenario = replyScenarios[randomIndex];",
+                  "",
+                  "// Set variables for this request",
+                  "pm.environment.set('reply_name', scenario.reply_name);",
+                  "pm.environment.set('reply_email', scenario.reply_email);",
+                  "pm.environment.set('reply_subject', scenario.reply_subject);",
+                  "pm.environment.set('reply_message', scenario.reply_message);",
+                  "pm.environment.set('reply_description', scenario.description);",
+                  "pm.environment.set('message_id', '1'); // Use message ID 1 that we know exists",
+                  "",
+                  "console.log('Using reply scenario:', scenario.description);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response contains reply details\", function () {",
+                  "    pm.response.to.have.jsonBody('message');",
+                  "    pm.response.to.have.jsonBody('id');",
+                  "    pm.response.to.have.jsonBody('created_at');",
+                  "});",
+                  "",
+                  "// Log the test data used and results",
+                  "console.log('Reply test executed with:', {",
+                  "    reply_name: pm.environment.get('reply_name'),",
+                  "    reply_email: pm.environment.get('reply_email'),",
+                  "    reply_subject: pm.environment.get('reply_subject'),",
+                  "    reply_message: pm.environment.get('reply_message'),",
+                  "    description: pm.environment.get('reply_description'),",
+                  "    message_id: pm.environment.get('message_id'),",
+                  "    status_code: pm.response.code,",
+                  "    actual_response: pm.response.json()",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

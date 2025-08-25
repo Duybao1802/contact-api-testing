@@ -2,7 +2,6 @@
 test-results/
 reports/
 *.html
-*.json
 *.xml
 
 # Node.js
@@ -56,5 +55,3 @@ temp/
 
 # Postman local files
 postman/
-*.postman_collection.json
-*.postman_environment.json

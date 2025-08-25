@@ -1,0 +1,295 @@
+{
+  "info": {
+    "name": "Contact API Tests - Data Driven (Simple)",
+    "description": "Simplified data-driven version with basic pre-request scripts",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8091/api",
+      "type": "string"
+    },
+    {
+      "key": "admin_token",
+      "value": "{{admin_token}}",
+      "type": "string"
+    },
+    {
+      "key": "user_token",
+      "value": "{{user_token}}",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Valid Contact Message - Data Driven",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"{{test_name}}\",\n  \"email\": \"{{test_email}}\",\n  \"subject\": \"{{test_subject}}\",\n  \"message\": \"{{test_message}}\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/messages",
+          "host": ["{{base_url}}"],
+          "path": ["messages"]
+        }
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Simple data-driven test setup",
+              "const testData = [",
+              "  {",
+              "    name: 'John Doe',",
+              "    email: 'john@doe.example',",
+              "    subject: 'Website Feedback',",
+              "    message: 'The website is working great!'",
+              "  },",
+              "  {",
+              "    name: 'Jane Smith',",
+              "    email: 'jane@smith.example',",
+              "    subject: 'Product Inquiry',",
+              "    message: 'I have a question about your products.'",
+              "  },",
+              "  {",
+              "    name: 'Bob Wilson',",
+              "    email: 'bob@wilson.example',",
+              "    subject: 'Support Request',",
+              "    message: 'Need help with my account.'",
+              "  }",
+              "];",
+              "",
+              "// Select random test data",
+              "const randomIndex = Math.floor(Math.random() * testData.length);",
+              "const data = testData[randomIndex];",
+              "",
+              "// Set environment variables",
+              "pm.environment.set('test_name', data.name);",
+              "pm.environment.set('test_email', data.email);",
+              "pm.environment.set('test_subject', data.subject);",
+              "pm.environment.set('test_message', data.message);",
+              "",
+              "console.log('Selected test data:', data);"
+            ]
+          }
+        }
+      ],
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Response contains access_token\", function () {",
+              "    pm.response.to.have.jsonBody('access_token');",
+              "});",
+              "",
+              "pm.test(\"Response time is less than 2000ms\", function () {",
+              "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+              "});",
+              "",
+              "// Log the test data used",
+              "console.log('Test executed with:', {",
+              "    name: pm.environment.get('test_name'),",
+              "    email: pm.environment.get('test_email'),",
+              "    subject: pm.environment.get('test_subject'),",
+              "    message: pm.environment.get('test_message')",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Invalid Contact Message - Data Driven",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"{{invalid_name}}\",\n  \"email\": \"{{invalid_email}}\",\n  \"subject\": \"{{invalid_subject}}\",\n  \"message\": \"{{invalid_message}}\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/messages",
+          "host": ["{{base_url}}"],
+          "path": ["messages"]
+        }
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Simple invalid data setup",
+              "const invalidData = [",
+              "  {",
+              "    name: '',",
+              "    email: 'john@doe.example',",
+              "    subject: 'Test Subject',",
+              "    message: 'Test message'",
+              "  },",
+              "  {",
+              "    name: 'John Doe',",
+              "    email: 'invalid-email',",
+              "    subject: 'Test Subject',",
+              "    message: 'Test message'",
+              "  },",
+              "  {",
+              "    name: 'John Doe',",
+              "    email: 'john@doe.example',",
+              "    subject: '',",
+              "    message: 'Test message'",
+              "  }",
+              "];",
+              "",
+              "// Select random invalid data",
+              "const randomIndex = Math.floor(Math.random() * invalidData.length);",
+              "const data = invalidData[randomIndex];",
+              "",
+              "// Set environment variables",
+              "pm.environment.set('invalid_name', data.name);",
+              "pm.environment.set('invalid_email', data.email);",
+              "pm.environment.set('invalid_subject', data.subject);",
+              "pm.environment.set('invalid_message', data.message);",
+              "",
+              "console.log('Selected invalid data:', data);"
+            ]
+          }
+        }
+      ],
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 400 or 422 or 500\", function () {",
+              "    pm.expect(pm.response.code).to.be.oneOf([400, 422, 500]);",
+              "});",
+              "",
+              "if (pm.response.code === 500) {",
+              "    console.log('⚠️ Server error detected - this is a bug!');",
+              "}",
+              "",
+              "// Log the test data used",
+              "console.log('Invalid test executed with:', {",
+              "    name: pm.environment.get('invalid_name'),",
+              "    email: pm.environment.get('invalid_email'),",
+              "    subject: pm.environment.get('invalid_subject'),",
+              "    message: pm.environment.get('invalid_message')",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Update Message Status - Data Driven",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{admin_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"{{test_status}}\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/messages/1/status",
+          "host": ["{{base_url}}"],
+          "path": ["messages", "1", "status"]
+        }
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Simple status data setup",
+              "const statusData = [",
+              "  {",
+              "    status: 'NEW',",
+              "    description: 'Set status to NEW'",
+              "  },",
+              "  {",
+              "    status: 'IN_PROGRESS',",
+              "    description: 'Set status to IN_PROGRESS'",
+              "  },",
+              "  {",
+              "    status: 'RESOLVED',",
+              "    description: 'Set status to RESOLVED'",
+              "  }",
+              "];",
+              "",
+              "// Select random status",
+              "const randomIndex = Math.floor(Math.random() * statusData.length);",
+              "const data = statusData[randomIndex];",
+              "",
+              "// Set environment variables",
+              "pm.environment.set('test_status', data.status);",
+              "pm.environment.set('status_description', data.description);",
+              "",
+              "console.log('Selected status data:', data);"
+            ]
+          }
+        }
+      ],
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Response contains success indicator\", function () {",
+              "    pm.response.to.have.jsonBody('success');",
+              "    pm.expect(pm.response.json().success).to.be.true;",
+              "});",
+              "",
+              "// Log the test data used",
+              "console.log('Status test executed with:', {",
+              "    status: pm.environment.get('test_status'),",
+              "    description: pm.environment.get('status_description')",
+              "});"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

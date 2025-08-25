@@ -1,0 +1,515 @@
+{
+  "info": {
+    "_postman_id": "38543974-a784-4e1e-befd-6ce28b30af94",
+    "name": "Contact API Tests - Simple",
+    "description": "Simple test collection for Contact API endpoints - Newman CLI compatible",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Send New Contact Message",
+      "item": [
+        {
+          "name": "Valid Contact Message",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response is valid JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "",
+                  "pm.test(\"Response has content\", function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response).to.not.be.empty;",
+                  "    console.log('Actual response:', JSON.stringify(response, null, 2));",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is reasonable\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(10000);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john@doe.example\",\n  \"subject\": \"Website Feedback\",\n  \"message\": \"The website is working great!\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/messages",
+              "host": ["{{base_url}}"],
+              "path": ["messages"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Invalid Contact Message - Empty Name",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 400 or 422\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([400, 422]);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"\",\n  \"email\": \"john@doe.example\",\n  \"subject\": \"Test Subject\",\n  \"message\": \"Test message\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/messages",
+              "host": ["{{base_url}}"],
+              "path": ["messages"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Invalid Contact Message - Invalid Email",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 400 or 422\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([400, 422]);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"invalid-email\",\n  \"subject\": \"Test Subject\",\n  \"message\": \"Test message\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/messages",
+              "host": ["{{base_url}}"],
+              "path": ["messages"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "2. Retrieve Messages",
+      "item": [
+        {
+          "name": "Get Messages - Admin User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response contains pagination data\", function () {",
+                  "    pm.response.to.have.jsonBody('current_page');",
+                  "    pm.response.to.have.jsonBody('data');",
+                  "    pm.response.to.have.jsonBody('total');",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is reasonable\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(10000);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/messages",
+              "host": ["{{base_url}}"],
+              "path": ["messages"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Messages - Unauthorized",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 401\", function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});",
+                  "",
+                  "pm.test(\"Response contains unauthorized message\", function () {",
+                  "    pm.response.to.have.jsonBody('message');",
+                  "    pm.expect(pm.response.json().message).to.eql('Unauthorized');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/messages",
+              "host": ["{{base_url}}"],
+              "path": ["messages"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "3. Get Specific Message",
+      "item": [
+        {
+          "name": "Get Message by ID - Valid ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response contains message details\", function () {",
+                  "    pm.response.to.have.jsonBody('id');",
+                  "    pm.response.to.have.jsonBody('name');",
+                  "    pm.response.to.have.jsonBody('email');",
+                  "    pm.response.to.have.jsonBody('subject');",
+                  "    pm.response.to.have.jsonBody('message');",
+                  "    pm.response.to.have.jsonBody('status');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/messages/1",
+              "host": ["{{base_url}}"],
+              "path": ["messages", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Message by ID - Invalid ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 404\", function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/messages/999999",
+              "host": ["{{base_url}}"],
+              "path": ["messages", "999999"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "4. Update Message Status",
+      "item": [
+        {
+          "name": "Update Status to IN_PROGRESS",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response contains success indicator\", function () {",
+                  "    pm.response.to.have.jsonBody('success');",
+                  "    pm.expect(pm.response.json().success).to.be.true;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"IN_PROGRESS\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/messages/1/status",
+              "host": ["{{base_url}}"],
+              "path": ["messages", "1", "status"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Status to RESOLVED",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"RESOLVED\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/messages/1/status",
+              "host": ["{{base_url}}"],
+              "path": ["messages", "1", "status"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Status - Invalid Status",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 400 or 422\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([400, 422]);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"INVALID_STATUS\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/messages/1/status",
+              "host": ["{{base_url}}"],
+              "path": ["messages", "1", "status"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "5. Reply to Message",
+      "item": [
+        {
+          "name": "Reply to Message - Valid Reply",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response contains reply details\", function () {",
+                  "    pm.response.to.have.jsonBody('message');",
+                  "    pm.response.to.have.jsonBody('id');",
+                  "    pm.response.to.have.jsonBody('created_at');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Support Team\",\n  \"email\": \"support@company.com\",\n  \"subject\": \"Re: Website Feedback\",\n  \"message\": \"Thank you for your feedback. We're glad you're enjoying our service!\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/messages/1/reply",
+              "host": ["{{base_url}}"],
+              "path": ["messages", "1", "reply"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "6. Attach File to Message",
+      "item": [
+        {
+          "name": "Attach File - Valid File",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response contains success indicator\", function () {",
+                  "    pm.response.to.have.jsonBody('success');",
+                  "    pm.expect(pm.response.json().success).to.be.true;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "test-file.txt"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/messages/1/attach-file",
+              "host": ["{{base_url}}"],
+              "path": ["messages", "1", "attach-file"]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
