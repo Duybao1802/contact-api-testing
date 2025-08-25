@@ -1,0 +1,67 @@
+name: API Tests - Contact API
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  schedule:
+    # Run tests daily at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  api-testing:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        
+    - name: Install Newman CLI
+      run: npm install -g newman
+      
+    - name: Install Newman HTML Reporter
+      run: npm install -g newman-reporter-htmlextra
+      
+    - name: Create test data directory
+      run: mkdir -p test-results
+      
+    - name: Run Contact API Tests
+      run: |
+        newman run "exported one/Postman Toolshop API Testing/Contact API Tests.postman_collection.json" \
+          -e "exported one/Postman Toolshop API Testing/Contact API Environment.postman_environment.json" \
+          --reporters cli,htmlextra \
+          --reporter-htmlextra-export test-results/report.html \
+          --reporter-htmlextra-title "Contact API Test Results" \
+          --reporter-htmlextra-browserTitle "API Test Report" \
+          --reporter-htmlextra-exportTimestamp \
+          --reporter-htmlextra-timezone "Asia/Ho_Chi_Minh" \
+          --iteration-count 3 \
+          --delay-request 1000
+      env:
+        # Set your environment variables here
+        base_url: "http://localhost:8091"
+        admin_token: ${{ secrets.ADMIN_TOKEN }}
+        user_token: ${{ secrets.USER_TOKEN }}
+        
+    - name: Upload test results
+      uses: actions/upload-artifact@v4
+      with:
+        name: api-test-results
+        path: test-results/
+        
+    - name: Check test results
+      run: |
+        if [ -f "test-results/report.html" ]; then
+          echo "✅ Tests completed successfully"
+          echo "📊 Report generated: test-results/report.html"
+        else
+          echo "❌ Test execution failed"
+          exit 1
+        fi

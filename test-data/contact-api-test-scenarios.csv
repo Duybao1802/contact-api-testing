@@ -1,0 +1,16 @@
+test_id,test_name,test_type,data_name,data_email,data_subject,data_message,expected_status,expected_response,description
+TC001,Valid Contact Message,Positive,John Doe,john@doe.example,Website Feedback,The website is working great!,200,Success,Submit valid contact message
+TC002,Valid Contact Message,Positive,Jane Smith,jane@smith.example,Product Inquiry,I have a question about your products,200,Success,Submit valid contact message with different data
+TC003,Valid Contact Message,Positive,Bob Wilson,bob@wilson.example,Support Request,Need help with my account,200,Success,Submit valid contact message with different data
+TC004,Empty Name Validation,Negative,,john@doe.example,Test Subject,Test message,400/422,Error,Submit message with empty name
+TC005,Invalid Email Validation,Negative,John Doe,invalid-email,Test Subject,Test message,400/422,Error,Submit message with invalid email
+TC006,Empty Subject Validation,Negative,John Doe,john@doe.example,,Test message,400/422,Error,Submit message with empty subject
+TC007,Empty Message Validation,Negative,John Doe,john@doe.example,Test Subject,,400/422,Error,Submit message with empty message
+TC008,Boundary Name Length,Positive,A,john@doe.example,Test Subject,Test message,200,Success,Submit message with minimum name length
+TC009,Boundary Email Format,Positive,John Doe,a@b.c,Test Subject,Test message,200,Success,Submit message with minimum email format
+TC010,Long Name Validation,Negative,AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA,john@doe.example,Test Subject,Test message,400/422,Error,Submit message with very long name
+TC011,Long Subject Validation,Negative,John Doe,john@doe.example,AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA,Test message,400/422,Error,Submit message with very long subject
+TC012,SQL Injection Test,Security,'; DROP TABLE messages; --,test@test.com,Test,Test message,400/422,Error,Test SQL injection prevention
+TC013,XSS Test,Security,<script>alert('xss')</script>,test@test.com,Test,Test message,400/422,Error,Test XSS prevention
+TC014,Special Characters,Positive,José María,jose@maria.example,Test with émojis 🚀,Message with special chars: @#$%^&*(),200,Success,Submit message with special characters
+TC015,Unicode Test,Positive,张三,zhang@san.example,Unicode Test,Message with 中文 characters,200,Success,Submit message with Unicode characters
